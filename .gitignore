@@ -1,42 +1,35 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
+*.sqlite3
 
 # Virtual environment
 .venv/
 venv/
 env/
 
-# Django
-*.log
-db.sqlite3
-db.sqlite3-journal
-staticfiles/
-
-# Local environment variables
+# Environment variables
 .env
-.env.*
-!.env.example
 
-# Media uploads
-media/*
-!media/.gitkeep
-
-# Tests and coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# IDEs
+# IDE
 .idea/
 .vscode/
 
 # macOS
 .DS_Store
 
-# Build/cache
-dist/
-build/
-*.egg-info/
+# Django
+media/
+staticfiles/
+
+# Logs
+*.log
+
+# Migrations cache
+*.pot
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
