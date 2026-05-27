@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Characters
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Characters
+</h1>
+
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <input
+            type="text"
+            name="q"
+            value="{{ search }}"
+            class="form-control"
+            placeholder="Search character"
+        >
+    </div>
+
+    <div class="col-md-3">
+        <select name="attack_type" class="form-select">
+            <option value="">
+                All attack types
+            </option>
+
+            {% for value, label in attack_types %}
+                <option
+                    value="{{ value }}"
+                    {% if selected_attack_type == value %}selected{% endif %}
+                >
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select name="game_set" class="form-select">
+            <option value="">
+                All sets
+            </option>
+
+            {% for game_set in game_sets %}
+                <option
+                    value="{{ game_set.id }}"
+                    {% if selected_game_set == game_set.id|stringformat:'s' %}selected{% endif %}
+                >
+                    {{ game_set.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">
+            Filter
+        </button>
+    </div>
+
+</form>
+
+<div class="row">
+
+    {% for character in characters %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+
+                {% if character.image %}
+                    <img
+                        src="{{ character.image.url }}"
+                        class="card-img-top character-card-image"
+                        alt="{{ character.name }}"
+                    >
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ character.name }}
+                    </h5>
+
+                    {% if character.subtitle %}
+                        <p class="card-text text-muted">
+                            {{ character.subtitle }}
+                        </p>
+                    {% endif %}
+
+                    <p class="card-text">
+                        Health: {{ character.health }}
+                    </p>
+
+                    <p class="card-text">
+                        Attack: {{ character.get_attack_type_display }}
+                    </p>
+
+                    <a
+                        href="{{ character.get_absolute_url }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Details
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Characters not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+{% include 'includes/pagination.html' %}
+
+{% endblock %}

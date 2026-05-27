@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ game_set.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'wiki:game-set-list' %}" class="btn btn-outline-dark">
+        Back to sets
+    </a>
+
+    {% if user.is_staff %}
+        <a
+            href="{% url 'wiki:game-set-update' game_set.slug %}"
+            class="btn btn-dark"
+        >
+            Edit set
+        </a>
+    {% endif %}
+</div>
+
+<div class="row mb-4">
+
+    <div class="col-md-5">
+        {% if game_set.cover_image %}
+            <img
+                src="{{ game_set.cover_image.url }}"
+                class="detail-main-image rounded"
+                alt="{{ game_set.name }}"
+            >
+        {% endif %}
+    </div>
+
+    <div class="col-md-7">
+        <h1>
+            {{ game_set.name }}
+        </h1>
+
+        <p>
+            <strong>Release year:</strong>
+            {{ game_set.release_year }}
+        </p>
+
+        <p>
+            {{ game_set.description }}
+        </p>
+    </div>
+
+</div>
+
+<h2 class="mb-3">
+    Maps in this set
+</h2>
+
+<div class="row mb-4">
+
+    {% for map in game_set.maps.all %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+
+                {% if map.image %}
+                    <img
+                        src="{{ map.image.url }}"
+                        class="card-img-top map-card-image"
+                        alt="{{ map.name }}"
+                    >
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ map.name }}
+                    </h5>
+
+                    <p class="card-text">
+                        Players: {{ map.players_count }}
+                    </p>
+
+                    <a
+                        href="{{ map.get_absolute_url }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Map details
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Maps for this set not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+<h2 class="mb-3">
+    Characters in this set
+</h2>
+
+<div class="row">
+
+    {% for character in game_set.characters.all %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+
+                {% if character.image %}
+                    <img
+                        src="{{ character.image.url }}"
+                        class="card-img-top character-card-image"
+                        alt="{{ character.name }}"
+                    >
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ character.name }}
+                    </h5>
+
+                    <p class="card-text">
+                        Health: {{ character.health }}
+                    </p>
+
+                    <a
+                        href="{{ character.get_absolute_url }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Character details
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Characters for this set not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

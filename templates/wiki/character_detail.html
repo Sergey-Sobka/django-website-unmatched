@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ character.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'wiki:character-list' %}" class="btn btn-outline-dark">
+        Back to characters
+    </a>
+
+    {% if user.is_staff %}
+        <a
+            href="{% url 'wiki:character-update' character.slug %}"
+            class="btn btn-dark"
+        >
+            Edit character
+        </a>
+    {% endif %}
+</div>
+
+<div class="row mb-4">
+
+    <div class="col-md-5">
+        {% if character.image %}
+            <img
+                src="{{ character.image.url }}"
+                class="detail-main-image rounded"
+                alt="{{ character.name }}"
+            >
+        {% endif %}
+    </div>
+
+    <div class="col-md-7">
+        <h1>
+            {{ character.name }}
+        </h1>
+
+        {% if character.subtitle %}
+            <p class="text-muted">
+                {{ character.subtitle }}
+            </p>
+        {% endif %}
+
+        <p>
+            <strong>Game set:</strong>
+            {{ character.game_set.name }}
+        </p>
+
+        <p>
+            <strong>Health:</strong>
+            {{ character.health }}
+        </p>
+
+        <p>
+            <strong>Attack type:</strong>
+            {{ character.get_attack_type_display }}
+        </p>
+
+        <p>
+            {{ character.description }}
+        </p>
+    </div>
+
+</div>
+
+<h2 class="mb-3">
+    Sidekicks
+</h2>
+
+<div class="row mb-4">
+
+    {% for sidekick in character.sidekicks.all %}
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ sidekick.name }}
+                    </h5>
+
+                    <p class="card-text">
+                        Count: {{ sidekick.count }}
+                    </p>
+
+                    <p class="card-text">
+                        Health: {{ sidekick.health }}
+                    </p>
+
+                    {% if sidekick.description %}
+                        <p class="card-text">
+                            {{ sidekick.description }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            This character has no sidekicks.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+<h2 class="mb-3">
+    Cards
+</h2>
+
+<div class="row">
+
+    {% for card in character.cards.all %}
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    {% if card.image %}
+                        <img
+                            src="{{ card.image.url }}"
+                            class="img-fluid rounded mb-3"
+                            alt="{{ card.name }}"
+                        >
+                    {% endif %}
+
+                    <h5 class="card-title">
+                        {{ card.name }}
+                    </h5>
+
+                    {% if user.is_staff %}
+                        <a
+                            href="{% url 'wiki:card-update' card.id %}"
+                            class="btn btn-sm btn-outline-dark mb-3"
+                        >
+                            Edit card
+                        </a>
+                    {% endif %}
+
+                    <p class="card-text">
+                        Type: {{ card.get_card_type_display }}
+                    </p>
+
+                    <p class="card-text">
+                        Quantity: {{ card.quantity }}
+                    </p>
+
+                    {% if card.value %}
+                        <p class="card-text">
+                            Value: {{ card.value }}
+                        </p>
+                    {% endif %}
+
+                    {% if card.text %}
+                        <p class="card-text">
+                            {{ card.text }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Cards for this character not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

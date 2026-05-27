@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Tier List
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        Tier List
+    </h1>
+
+    {% if user.is_staff %}
+        <a href="{% url 'tierlist:tier-entry-create' %}" class="btn btn-dark">
+            Add tier entry
+        </a>
+    {% endif %}
+</div>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <select name="mode" class="form-select">
+            {% for value, label in modes %}
+                <option value="{{ value }}" {% if mode == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">
+            Show
+        </button>
+    </div>
+</form>
+
+{% for tier, entries in tier_list.items %}
+    <div class="tier-row">
+        <div class="tier-label">
+            {{ tier }}
+        </div>
+
+        <div class="tier-items">
+            {% for entry in entries %}
+                <div class="card tier-card">
+                    {% if entry.character.image %}
+                        <img
+                            src="{{ entry.character.image.url }}"
+                            class="card-img-top"
+                            alt="{{ entry.character.name }}"
+                        >
+                    {% endif %}
+
+                    <div class="card-body p-2">
+                        <strong>
+                            {{ entry.character.name }}
+                        </strong>
+
+                        {% if user.is_staff %}
+                            <br>
+                            <a href="{% url 'tierlist:tier-entry-update' entry.id %}">
+                                Edit
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <span class="text-muted">
+                    No characters in this tier.
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock %}

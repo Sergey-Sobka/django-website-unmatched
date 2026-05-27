@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ map.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'wiki:map-list' %}" class="btn btn-outline-dark">
+        Back to maps
+    </a>
+
+    {% if user.is_staff %}
+        <a
+            href="{% url 'wiki:map-update' map.slug %}"
+            class="btn btn-dark"
+        >
+            Edit map
+        </a>
+    {% endif %}
+</div>
+
+<div class="row">
+
+    <div class="col-md-5">
+        {% if map.image %}
+            <img
+                src="{{ map.image.url }}"
+                class="detail-main-image rounded"
+                alt="{{ map.name }}"
+            >
+        {% endif %}
+    </div>
+
+    <div class="col-md-7">
+        <h1>
+            {{ map.name }}
+        </h1>
+
+        <p>
+            <strong>Game set:</strong>
+            <a href="{{ map.game_set.get_absolute_url }}">
+                {{ map.game_set.name }}
+            </a>
+        </p>
+
+        <p>
+            <strong>Players:</strong>
+            {{ map.players_count }}
+        </p>
+
+        <p>
+            {{ map.description }}
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

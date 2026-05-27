@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Maps
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Maps
+</h1>
+
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <select name="game_set" class="form-select">
+            <option value="">
+                All sets
+            </option>
+
+            {% for game_set in game_sets %}
+                <option
+                    value="{{ game_set.id }}"
+                    {% if selected_game_set == game_set.id|stringformat:'s' %}selected{% endif %}
+                >
+                    {{ game_set.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">
+            Filter
+        </button>
+    </div>
+
+</form>
+
+<div class="row">
+
+    {% for map in maps %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+
+                {% if map.image %}
+                    <img
+                        src="{{ map.image.url }}"
+                        class="card-img-top map-card-image"
+                        alt="{{ map.name }}"
+                    >
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ map.name }}
+                    </h5>
+
+                    <p class="card-text">
+                        Set: {{ map.game_set.name }}
+                    </p>
+
+                    <p class="card-text">
+                        Players: {{ map.players_count }}
+                    </p>
+
+                    <a
+                        href="{{ map.get_absolute_url }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Details
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Maps not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+{% include 'includes/pagination.html' %}
+
+{% endblock %}
