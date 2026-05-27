@@ -1,7 +1,28 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def get_bool_env(name, default=False):
+    value = os.environ.get(name)
+
+    if value is None:
+        return default
+
+    return value.lower() in ('1', 'true', 'yes', 'on')
+
+
+def get_list_env(name, default=''):
+    value = os.environ.get(name, default)
+
+    return [
+        item.strip()
+        for item in value.split(',')
+        if item.strip()
+    ]
 
 
 def load_local_env():
@@ -26,17 +47,54 @@ def load_local_env():
 load_local_env()
 
 
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-t8$#1fc5=m$_1$qo=62*8bxl(qay^*fo6c9^^f4qum!vv^gr=k'
+DEBUG = get_bool_env(
+    'DEBUG',
+    default=not bool(os.environ.get('RENDER'))
 )
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-ALLOWED_HOSTS = os.environ.get(
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = (
+            'django-insecure-t8$#1fc5=m$_1$qo=62*8bxl'
+            '(qay^*fo6c9^^f4qum!vv^gr=k'
+        )
+    else:
+        raise RuntimeError('SECRET_KEY environment variable is required.')
+
+ALLOWED_HOSTS = get_list_env(
     'ALLOWED_HOSTS',
     'localhost,127.0.0.1,testserver',
-).split(',')
+)
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = get_list_env('CSRF_TRUSTED_ORIGINS')
+
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(
+        f'https://{RENDER_EXTERNAL_HOSTNAME}'
+    )
+
+SECURE_PROXY_SSL_HEADER = (
+    'HTTP_X_FORWARDED_PROTO',
+    'https',
+)
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = get_bool_env(
+        'SECURE_SSL_REDIRECT',
+        default=True
+    )
+    SECURE_HSTS_SECONDS = int(
+        os.environ.get('SECURE_HSTS_SECONDS', '0')
+    )
 
 USE_CLOUDINARY = bool(
     os.environ.get('CLOUDINARY_URL')
@@ -81,6 +139,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if not DEBUG:
+    MIDDLEWARE.insert(
+        1,
+        'whitenoise.middleware.WhiteNoiseMiddleware'
+    )
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -103,12 +167,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -138,6 +213,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -145,6 +222,17 @@ STATICFILES_DIRS = [
 MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        if DEBUG
+        else 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 if USE_CLOUDINARY:
     CLOUDINARY_STORAGE = {
@@ -160,13 +248,8 @@ if USE_CLOUDINARY:
             }
         )
 
-    STORAGES = {
-        'default': {
-            'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
-        },
-        'staticfiles': {
-            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-        },
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
     }
 
 

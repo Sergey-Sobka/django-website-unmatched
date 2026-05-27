@@ -12,7 +12,7 @@ Student Django project for an Unmatched-style board game wiki.
 - Search and filtering
 - Slug URLs
 - Admin customization
-- Ready wiki data with local images
+- Ready wiki data fixture
 - Cloudinary support for media files on deploy
 
 ## Run project
@@ -54,23 +54,48 @@ Editors can edit wiki information from the site detail pages and from Django adm
 .venv/bin/python manage.py test
 ```
 
-## Code explanation
-
-Detailed project explanation is here:
-
-```text
-docs/PROJECT_CODE_GUIDE.md
-```
-
 ## Project data
 
-The project already has local database and media files with official Unmatched sets, characters, cards and maps.
+The project has a fixture with official Unmatched sets, characters, cards and maps:
+
+```bash
+.venv/bin/python manage.py loaddata fixtures/wiki_initial_data.json
+```
 
 Only official released sets were used for the wiki data. If the project is published publicly, images and card text should be used carefully because they belong to their original rights holders.
 
-## Cloudinary media on Render
+## Render deploy
 
-The current database stores Cloudinary public ids for images. Use `CLOUDINARY_URL` locally and on Render to display and upload media files.
+This project has Render files:
+
+```text
+build.sh
+render.yaml
+```
+
+Render build command:
+
+```bash
+./build.sh
+```
+
+Render start command:
+
+```bash
+python -m gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker
+```
+
+After first deploy, load wiki data once:
+
+```bash
+python manage.py loaddata fixtures/wiki_initial_data.json
+```
+
+## Render environment variables
+
+The database is configured with `DATABASE_URL`.
+
+The current data stores Cloudinary public ids for images. Use `CLOUDINARY_URL` on Render to display and upload media files.
 
 On Render set one of these options:
 
@@ -91,7 +116,6 @@ Also set:
 ```text
 DEBUG=False
 SECRET_KEY=your_secret_key
-ALLOWED_HOSTS=your-render-domain.onrender.com
 ```
 
 New images uploaded from admin or editor forms will go to Cloudinary automatically.
