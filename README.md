@@ -85,11 +85,9 @@ Render start command:
 python -m gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker
 ```
 
-After first deploy, load wiki data once:
-
-```bash
-python manage.py loaddata fixtures/wiki_initial_data.json
-```
+During deploy the project runs migrations, loads initial wiki data if the
+database is empty, and creates a deploy superuser if superuser environment
+variables are set.
 
 ## Render environment variables
 
@@ -116,6 +114,9 @@ Also set:
 ```text
 DEBUG=False
 SECRET_KEY=your_secret_key
+DJANGO_SUPERUSER_USERNAME=user
+DJANGO_SUPERUSER_EMAIL=user@example.com
+DJANGO_SUPERUSER_PASSWORD=your_admin_password
 ```
 
 New images uploaded from admin or editor forms will go to Cloudinary automatically.
