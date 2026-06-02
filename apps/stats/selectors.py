@@ -5,17 +5,6 @@ from apps.wiki.models import Character
 from .models import MatchRecord
 
 
-def match_list():
-    return MatchRecord.objects.select_related(
-        'team_one_character',
-        'team_one_partner',
-        'team_two_character',
-        'team_two_partner',
-        'map',
-        'created_by',
-    ).order_by('-played_at', '-created_at')
-
-
 def character_stats(mode=''):
     stats = defaultdict(
         lambda: {

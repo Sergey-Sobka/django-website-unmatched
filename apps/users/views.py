@@ -1,9 +1,14 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 
 from .forms import ReferralInviteForm, UserProfileForm
 from .models import ReferralInvite
@@ -22,15 +27,10 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user.profile
 
 
-class ReferralInviteListView(LoginRequiredMixin, ListView):
+class ReferralInviteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     template_name = 'users/referral_invite_list.html'
     context_object_name = 'invites'
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return redirect('wiki:game-set-list')
-
-        return super().dispatch(request, *args, **kwargs)
+    permission_required = 'users.view_referralinvite'
 
     def get_queryset(self):
         return ReferralInvite.objects.filter(
@@ -38,17 +38,12 @@ class ReferralInviteListView(LoginRequiredMixin, ListView):
         ).order_by('-created_at')
 
 
-class ReferralInviteCreateView(LoginRequiredMixin, CreateView):
+class ReferralInviteCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = ReferralInvite
     form_class = ReferralInviteForm
     template_name = 'users/referral_invite_form.html'
     success_url = reverse_lazy('users:referral-invite-list')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return redirect('wiki:game-set-list')
-
-        return super().dispatch(request, *args, **kwargs)
+    permission_required = 'users.add_referralinvite'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -72,9 +67,10 @@ class ReferralInviteCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-def referral_accept_view(request, code):
-    request.session['invite_code'] = code
+class ReferralAcceptView(RedirectView):
 
-    return redirect(
-        f'{reverse_lazy("account_signup")}?invite={code}'
-    )
+    def get_redirect_url(self, *args, **kwargs):
+        code = kwargs['code']
+        self.request.session['invite_code'] = code
+
+        return f'{reverse_lazy("account_signup")}?invite={code}'

@@ -1,27 +1,9 @@
+from django.contrib.auth.models import Permission
 from django.test import TestCase
+from django.urls import reverse
 
 from apps.users.models import User
-
-from .models import Card, Character, GameSet, Map, Sidekick
-
-
-class WikiModelTests(TestCase):
-
-    def test_character_slug_is_created(self):
-        game_set = GameSet.objects.create(
-            name='Test Set',
-            release_year=2024,
-            description='Test description',
-        )
-        character = Character.objects.create(
-            game_set=game_set,
-            name='Test Hero',
-            description='Test hero description',
-            health=10,
-            attack_type=Character.AttackTypes.MELEE,
-        )
-
-        self.assertEqual(character.slug, 'test-hero')
+from apps.wiki.models import Card, Character, GameSet, Map, Sidekick
 
 
 class WikiViewTests(TestCase):
@@ -57,8 +39,32 @@ class WikiViewTests(TestCase):
             description='Test map description',
         )
 
+    def login_editor(self):
+        user = User.objects.create_user(
+            username='editor',
+            email='editor@example.com',
+            password='testpass123',
+        )
+        permissions = Permission.objects.filter(
+            content_type__app_label='wiki',
+            codename__in=[
+                'change_gameset',
+                'change_character',
+                'change_map',
+                'change_card',
+            ]
+        )
+        user.user_permissions.set(permissions)
+        self.client.force_login(user)
+
+    def test_game_set_list_page(self):
+        response = self.client.get(reverse('wiki:game-set-list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test Set')
+
     def test_character_list_page(self):
-        response = self.client.get('/characters/')
+        response = self.client.get(reverse('wiki:character-list'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Hero')
@@ -70,25 +76,25 @@ class WikiViewTests(TestCase):
         self.assertContains(response, 'Test Card')
 
     def test_map_list_page(self):
-        response = self.client.get('/maps/')
+        response = self.client.get(reverse('wiki:map-list'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Map')
 
-    def test_editor_can_open_edit_pages(self):
-        user = User.objects.create_user(
-            username='editor',
-            email='editor@example.com',
-            password='testpass123',
-            is_staff=True,
-        )
-        self.client.force_login(user)
+    def test_map_detail_page(self):
+        response = self.client.get(self.map.get_absolute_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test Map')
+
+    def test_editor_with_permissions_can_open_edit_pages(self):
+        self.login_editor()
 
         urls = [
-            f'/sets/{self.game_set.slug}/edit/',
-            f'/characters/{self.character.slug}/edit/',
-            f'/maps/{self.map.slug}/edit/',
-            f'/cards/{self.card.id}/edit/',
+            reverse('wiki:game-set-update', kwargs={'slug': self.game_set.slug}),
+            reverse('wiki:character-update', kwargs={'slug': self.character.slug}),
+            reverse('wiki:map-update', kwargs={'slug': self.map.slug}),
+            reverse('wiki:card-update', kwargs={'pk': self.card.id}),
         ]
 
         for url in urls:

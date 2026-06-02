@@ -3,11 +3,18 @@ from django.utils.text import slugify
 
 def create_unique_slug(model_class, value):
     slug = slugify(value)
-    unique_slug = slug
+    existing_slugs = set(
+        model_class.objects.filter(
+            slug__startswith=slug
+        ).values_list('slug', flat=True)
+    )
+
+    if slug not in existing_slugs:
+        return slug
+
     number = 1
 
-    while model_class.objects.filter(slug=unique_slug).exists():
-        unique_slug = f'{slug}-{number}'
+    while f'{slug}-{number}' in existing_slugs:
         number += 1
 
-    return unique_slug
+    return f'{slug}-{number}'

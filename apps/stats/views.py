@@ -4,7 +4,7 @@ from django.views.generic import CreateView, ListView, TemplateView
 
 from .forms import MatchRecordForm
 from .models import MatchRecord
-from .selectors import character_stats, match_list
+from .selectors import character_stats
 
 
 class MatchRecordListView(ListView):
@@ -13,7 +13,14 @@ class MatchRecordListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return match_list()
+        return MatchRecord.objects.select_related(
+            'team_one_character',
+            'team_one_partner',
+            'team_two_character',
+            'team_two_partner',
+            'map',
+            'created_by',
+        ).order_by('-played_at', '-created_at')
 
 
 class MatchRecordCreateView(LoginRequiredMixin, CreateView):

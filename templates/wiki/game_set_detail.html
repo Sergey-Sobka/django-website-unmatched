@@ -11,7 +11,7 @@
         Back to sets
     </a>
 
-    {% if user.is_staff %}
+    {% if perms.wiki.change_gameset %}
         <a
             href="{% url 'wiki:game-set-update' game_set.slug %}"
             class="btn btn-dark"

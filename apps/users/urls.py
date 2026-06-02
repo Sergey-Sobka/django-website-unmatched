@@ -5,7 +5,7 @@ from .views import (
     ProfileView,
     ReferralInviteCreateView,
     ReferralInviteListView,
-    referral_accept_view,
+    ReferralAcceptView,
 )
 
 
@@ -34,7 +34,7 @@ urlpatterns = [
     ),
     path(
         'invites/<str:code>/',
-        referral_accept_view,
+        ReferralAcceptView.as_view(),
         name='referral-accept'
     ),
 ]

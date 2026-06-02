@@ -11,7 +11,7 @@ Tier List
         Tier List
     </h1>
 
-    {% if user.is_staff %}
+    {% if perms.tierlist.add_tierlistentry %}
         <a href="{% url 'tierlist:tier-entry-create' %}" class="btn btn-dark">
             Add tier entry
         </a>
@@ -58,7 +58,7 @@ Tier List
                             {{ entry.character.name }}
                         </strong>
 
-                        {% if user.is_staff %}
+                        {% if perms.tierlist.change_tierlistentry %}
                             <br>
                             <a href="{% url 'tierlist:tier-entry-update' entry.id %}">
                                 Edit

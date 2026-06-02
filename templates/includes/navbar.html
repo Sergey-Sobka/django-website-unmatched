@@ -58,7 +58,7 @@
                     Profile
                 </a>
 
-                {% if user.is_staff %}
+                {% if perms.users.view_referralinvite %}
                     <a class="btn btn-sm btn-outline-light" href="{% url 'users:referral-invite-list' %}">
                         Invites
                     </a>
