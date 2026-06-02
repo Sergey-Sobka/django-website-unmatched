@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Game Sets
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Game Sets
+</h1>
+
+<div class="row">
+
+    {% for game_set in game_sets %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+
+                {% if game_set.cover_image %}
+                    <img
+                        src="{{ game_set.cover_image.url }}"
+                        class="card-img-top set-card-image"
+                        alt="{{ game_set.name }}"
+                    >
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ game_set.name }}
+                    </h5>
+
+                    <p class="card-text">
+                        Release year: {{ game_set.release_year }}
+                    </p>
+
+                    <p class="card-text">
+                        {{ game_set.description|truncatewords:20 }}
+                    </p>
+
+                    <a
+                        href="{{ game_set.get_absolute_url }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Details
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>
+            Game sets not found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+{% include 'includes/pagination.html' %}
+
+{% endblock %}

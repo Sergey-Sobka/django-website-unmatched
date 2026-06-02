@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add match
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Add match
+</h1>
+
+<form method="post" class="col-md-7">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-dark">
+        Save match
+    </button>
+</form>
+
+{% endblock %}

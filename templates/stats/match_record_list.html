@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Matches
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        Match history
+    </h1>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'stats:match-create' %}" class="btn btn-dark">
+            Add match
+        </a>
+    {% endif %}
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Mode</th>
+            <th>Team one</th>
+            <th>Team two</th>
+            <th>Winner</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for match in matches %}
+            <tr>
+                <td>{{ match.played_at }}</td>
+                <td>{{ match.get_mode_display }}</td>
+                <td>{{ match.team_one_character.name }}</td>
+                <td>{{ match.team_two_character.name }}</td>
+                <td>{{ match.get_winner_display }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">
+                    Matches not found.
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include 'includes/pagination.html' %}
+
+{% endblock %}

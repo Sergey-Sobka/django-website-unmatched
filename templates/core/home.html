@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero-section mb-5">
+    <div class="hero-content">
+        <h1>
+            Unmatched Wiki
+        </h1>
+
+        <p>
+            Simple fan wiki for characters, maps, sets and cards.
+        </p>
+
+        <p>
+            <a href="{% url 'wiki:game-set-list' %}" class="btn btn-light">
+                View sets
+            </a>
+
+            <a href="{% url 'wiki:character-list' %}" class="btn btn-outline-light">
+                View characters
+            </a>
+
+            <a href="{% url 'wiki:map-list' %}" class="btn btn-outline-light">
+                View maps
+            </a>
+        </p>
+    </div>
+</section>
+
+{% endblock %}
