@@ -1,5 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
@@ -22,17 +21,12 @@ class TierListView(TemplateView):
         return context
 
 
-class TierListEntryCreateView(LoginRequiredMixin, CreateView):
+class TierListEntryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = TierListEntry
     form_class = TierListEntryForm
     template_name = 'tierlist/tier_entry_form.html'
     success_url = reverse_lazy('tierlist:tier-list')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return redirect('tierlist:tier-list')
-
-        return super().dispatch(request, *args, **kwargs)
+    permission_required = 'tierlist.add_tierlistentry'
 
     def form_valid(self, form):
         form.instance.updated_by = self.request.user
@@ -40,17 +34,12 @@ class TierListEntryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class TierListEntryUpdateView(LoginRequiredMixin, UpdateView):
+class TierListEntryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = TierListEntry
     form_class = TierListEntryForm
     template_name = 'tierlist/tier_entry_form.html'
     success_url = reverse_lazy('tierlist:tier-list')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return redirect('tierlist:tier-list')
-
-        return super().dispatch(request, *args, **kwargs)
+    permission_required = 'tierlist.change_tierlistentry'
 
     def form_valid(self, form):
         form.instance.updated_by = self.request.user

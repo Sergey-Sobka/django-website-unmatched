@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import DetailView, ListView, UpdateView
 
 from .forms import CardForm, CharacterForm, GameSetForm, MapForm
@@ -40,16 +40,15 @@ class GameSetDetailView(DetailView):
         )
 
 
-class EditorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class EditorRequiredMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    pass
 
 
 class GameSetUpdateView(EditorRequiredMixin, UpdateView):
     model = GameSet
     form_class = GameSetForm
     template_name = 'wiki/object_form.html'
+    permission_required = 'wiki.change_gameset'
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -90,6 +89,7 @@ class MapUpdateView(EditorRequiredMixin, UpdateView):
     model = Map
     form_class = MapForm
     template_name = 'wiki/object_form.html'
+    permission_required = 'wiki.change_map'
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -135,6 +135,7 @@ class CharacterUpdateView(EditorRequiredMixin, UpdateView):
     model = Character
     form_class = CharacterForm
     template_name = 'wiki/object_form.html'
+    permission_required = 'wiki.change_character'
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -144,6 +145,7 @@ class CardUpdateView(EditorRequiredMixin, UpdateView):
     model = Card
     form_class = CardForm
     template_name = 'wiki/object_form.html'
+    permission_required = 'wiki.change_card'
 
     def get_success_url(self):
         return self.object.character.get_absolute_url()

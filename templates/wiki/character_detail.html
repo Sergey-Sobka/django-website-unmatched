@@ -11,7 +11,7 @@
         Back to characters
     </a>
 
-    {% if user.is_staff %}
+    {% if perms.wiki.change_character %}
         <a
             href="{% url 'wiki:character-update' character.slug %}"
             class="btn btn-dark"
@@ -131,7 +131,7 @@
                         {{ card.name }}
                     </h5>
 
-                    {% if user.is_staff %}
+                    {% if perms.wiki.change_card %}
                         <a
                             href="{% url 'wiki:card-update' card.id %}"
                             class="btn btn-sm btn-outline-dark mb-3"
